@@ -1,16 +1,52 @@
-export const App = () => {
-  return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 40,
-        color: '#010101'
-      }}
-    >
-      React homework template
-    </div>
-  );
-};
+import { Component } from 'react';
+import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
+import { Layout } from './Layout/Layout';
+import { GlobalStyle } from './GlobalStyle';
+import { Statistics } from './Statistics/Statistics';
+import { Notification } from './Notification/Notification';
+
+export class App extends Component {
+  state = {
+    good: 0,
+    neutral: 0,
+    bad: 0,
+  };
+
+  leaveFeedback = key => {
+    this.setState(pervState => ({
+      [key]: pervState[key] + 1,
+    }));
+  };
+
+  countTotalFeedback = () =>
+    this.state.good + this.state.neutral + this.state.bad;
+
+  countPositiveFeedbackPercentage = () =>
+    Math.round((this.state.good / this.countTotalFeedback()) * 100) || 0;
+
+  render() {
+    const total = this.countTotalFeedback();
+    const { good, neutral, bad } = this.state;
+    const positivePercent = this.countPositiveFeedbackPercentage();
+    return (
+      <Layout>
+        <FeedbackOptions
+          options={Object.keys(this.state)}
+          onLeaveFeedback={this.leaveFeedback}
+        ></FeedbackOptions>
+        {!total ? (
+          <Notification message="There is no feedback" />
+        ) : (
+          <Statistics
+            good={good}
+            neutral={neutral}
+            bad={bad}
+            total={total}
+            positivePercentage={positivePercent}
+          ></Statistics>
+        )}
+        <GlobalStyle />
+      </Layout>
+    );
+  }
+}
